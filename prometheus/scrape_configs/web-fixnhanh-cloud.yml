@@ -1,0 +1,21 @@
+# /etc/prometheus/scrape_configs/web-fixnhanh-cloud.yml
+# Giám sát web fixnhanh.cloud (103.75.187.42): Beyla (Nginx) + Node Exporter (tài nguyên).
+# Quy tắc cho dashboard "Nginx Beyla Full":
+#   - job Beyla phải chứa chữ "beyla", job Node Exporter phải chứa chữ "node"
+#   - hai target phải cùng địa chỉ (cùng IP) để phần tài nguyên khớp đúng server
+scrape_configs:
+  - job_name: 'beyla-nginx-fixnhanh-cloud'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['103.75.187.42:9090']
+        labels:
+          environment: 'production'
+          domain: 'fixnhanh.cloud'
+
+  - job_name: 'node-exporter-fixnhanh-cloud'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['103.75.187.42:9100']
+        labels:
+          environment: 'production'
+          domain: 'fixnhanh.cloud'

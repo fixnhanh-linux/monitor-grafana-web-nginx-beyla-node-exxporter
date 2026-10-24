@@ -1,0 +1,19 @@
+[Unit]
+Description=Grafana Beyla eBPF Auto-instrumentation
+Documentation=https://grafana.com/docs/beyla/
+After=network-online.target nginx.service
+Wants=network-online.target nginx.service
+
+[Service]
+Type=simple
+# eBPF yêu cầu quyền root hoặc CAP_SYS_ADMIN
+User=root
+ExecStart=/usr/local/bin/beyla --config /etc/beyla/beyla-config.yml
+Restart=always
+RestartSec=5
+# Kernel cũ (< 5.11) cần bỏ giới hạn locked memory để nạp eBPF map
+LimitMEMLOCK=infinity
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,20 @@
+# Add this block to your existing prometheus.yml under scrape_configs:
+scrape_configs:
+  # ... existing scrape configs ...
+
+  - job_name: 'beyla-nginx'
+    # Scrape every 15 seconds (adjust to your needs)
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['localhost:9090'] # Assuming Beyla and Prometheus are on the same server. Adjust if needed.
+        labels:
+          environment: 'production'
+          domain: 'scan.lazyy.site'
+
+  - job_name: 'node_exporter'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['localhost:9100']
+        labels:
+          environment: 'production'
+          domain: 'scan.lazyy.site'

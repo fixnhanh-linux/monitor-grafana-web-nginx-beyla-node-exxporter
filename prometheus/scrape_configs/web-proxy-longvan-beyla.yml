@@ -1,0 +1,38 @@
+scrape_configs:
+  - job_name: "fpt-hn-beyla"
+    scrape_interval: 15s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['103.237.145.7:9400']
+        labels:
+          env: 'production'
+          site: 'fpt-hn'
+
+  - job_name: "fpt-hcm-beyla"
+    scrape_interval: 15s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['103.48.192.132:9400']
+        labels:
+          env: 'production'
+          site: 'fpt-hcm'
+
+  # Telegraf (output prometheus_client, cổng 9125): CPU / RAM / Disk / Network + nginx stub_status.
+  # Cùng IP với Beyla ở trên để dashboard ghép đúng server.
+  - job_name: "fpt-hn-telegraf"
+    scrape_interval: 15s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['103.237.145.7:9125']
+        labels:
+          env: 'production'
+          site: 'fpt-hn'
+
+  - job_name: "fpt-hcm-telegraf"
+    scrape_interval: 15s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['103.48.192.132:9125']
+        labels:
+          env: 'production'
+          site: 'fpt-hcm'

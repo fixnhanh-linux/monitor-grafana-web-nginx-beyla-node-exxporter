@@ -1,0 +1,77 @@
+# /etc/beyla/beyla-config.yml
+# Grafana Beyla: giám sát Nginx bằng eBPF, xuất metrics cho Prometheus.
+# Sau khi sửa: sudo systemctl restart beyla
+
+log_level: INFO          # DEBUG khi cần dò lỗi
+print_traces: false      # true = in từng request ra journal (chỉ bật khi debug)
+
+# ---------------------------------------------------------------------------
+# 1. Tiến trình cần theo dõi
+# ---------------------------------------------------------------------------
+executable_name: nginx   # Tên tiến trình
+open_port: 80,443        # Cổng nginx đang lắng nghe
+
+# ---------------------------------------------------------------------------
+# 2. Xuất metrics cho Prometheus
+# ---------------------------------------------------------------------------
+prometheus_export:
+  # Nếu Prometheus chạy cùng máy (mặc định cũng dùng 9090) thì đổi cổng này,
+  # ví dụ 9400, và sửa target của job 'beyla-nginx' trong prometheus-scrape.yml.
+  port: 9090
+  path: /metrics
+  report_target: true
+  report_peer: true
+  features:
+    - application            # Metrics HTTP: request, latency, status code, body size
+    - application_process    # CPU / RAM / số tiến trình nginx (hàng "Tiến trình Nginx")
+  # Mốc histogram (giây) cho latency p50 / p90 / p99 và heatmap
+  buckets:
+    duration_histogram: [0, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1, 2.5, 5, 7.5, 10]
+
+# ---------------------------------------------------------------------------
+# 3. Gom URL thành route (nhãn http_route trên dashboard)
+# ---------------------------------------------------------------------------
+routes:
+  # Đặt tên route rõ ràng: {slug} / {file} = một đoạn URL bất kỳ.
+  # Ví dụ cho site Next.js (fixnhanh.cloud) - sửa theo URL thật của từng site.
+  patterns:
+    - /_next/static/chunks/{file}
+    - /_next/static/media/{file}
+    - /_next/image
+    - /posts/{slug}
+    - /category/{slug}
+    - /uploads/{file}
+  # URL không khớp patterns ở trên:
+  # heuristic: tự thay đoạn URL giống ID bằng '*' để nhãn http_route không bị
+  # bùng nổ (dashboard Matrix lọc theo dạng "/*/client/...")
+  unmatched: heuristic
+  # Bỏ không đếm các request kiểm tra sức khỏe / scrape
+  ignored_patterns:
+    - /nginx_status
+    - /health
+    - /metrics
+  ignore_mode: all
+
+# ---------------------------------------------------------------------------
+# 4. Nhãn gắn vào metrics
+# ---------------------------------------------------------------------------
+attributes:
+  kubernetes:
+    enable: false
+  # Thêm nhãn server_address (tên miền) cho biến "Domain (Website)" trên dashboard.
+  # Bỏ client_address và url_path vì mỗi IP khách / mỗi URL sẽ tạo một chuỗi
+  # metrics riêng (dùng http_route đã gom nhóm thay cho url_path).
+  select:
+    http_server_request_duration:
+      include: ["*"]
+      exclude: ["client_address", "url_path"]
+    http_server_request_body_size:
+      include: ["*"]
+      exclude: ["client_address", "url_path"]
+    http_server_response_body_size:
+      include: ["*"]
+      exclude: ["client_address", "url_path"]
+  # Tên dịch vụ để nhận diện nginx instance này
+  global:
+    "service.name": "scan.lazyy.site"
+    "service.namespace": "lazyy-site"
