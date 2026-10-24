@@ -2,12 +2,7 @@
 
 Giám sát Nginx bằng **Grafana Beyla** (eBPF, không cần sửa code) + **Node Exporter** hoặc **Telegraf** (tài nguyên máy chủ), thu thập bằng **Prometheus**, hiển thị trên **Grafana**.
 
-```
-Nginx ──(eBPF)──> Beyla :9090/metrics ─┐
-                                       ├──> Prometheus ──> Grafana (dashboard "Nginx Beyla Full")
-Máy chủ ──> Node Exporter :9100 ───────┤
-            hoặc Telegraf :9125 ────────┘
-```
+![Sơ đồ kiến trúc giám sát Nginx](docs/so-do-kien-truc.svg)
 
 ## Nội dung thư mục
 
@@ -21,6 +16,7 @@ Máy chủ ──> Node Exporter :9100 ───────┤
 | `prometheus/scrape_configs/*.yml` | `/etc/prometheus/scrape_configs/` | Mỗi site một file (Beyla + Node Exporter hoặc Telegraf), dùng khi Prometheus nạp `scrape_config_files`. Job Beyla phải chứa chữ `beyla`, job Node Exporter phải chứa chữ `node`. Target tài nguyên phải cùng IP với target Beyla |
 | `grafana-dashboard-beyla-nginx-telegraf.json` | Grafana > Dashboards > Import | Bản chỉ dùng **Telegraf** cho phần tài nguyên (không có `node_*`), UID `beyla-nginx-telegraf`. Dùng khi mọi máy chủ đều chạy Telegraf (output `prometheus_client`). Một datasource Prometheus duy nhất (`DS_PROMETHEUS`) phải có cả job Beyla lẫn job Telegraf |
 | `telegraf/nginx-access-domain.conf` | `/etc/telegraf/telegraf.d/` trên server nginx | Telegraf đọc access log nginx, xuất `nginx_domain_requests_total` / `nginx_domain_bytes_total` theo `domain` + `resp_code` qua cổng 9125 (cho hàng **Domains** và ô lọc **Domain**) |
+| `docs/so-do-kien-truc.svg` | — | Sơ đồ kiến trúc (ảnh ở đầu README) |
 | `docker/` | Máy chạy Prometheus + Grafana | `docker compose` dựng sẵn Prometheus (scrape Beyla + Node Exporter) và Grafana (đã có datasource) |
 
 ## Chạy Prometheus + Grafana bằng Docker

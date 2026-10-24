@@ -2,6 +2,8 @@
 
 Tài liệu này hướng dẫn chi tiết từng bước để thiết lập hệ thống giám sát tự động (auto-instrumentation) cho máy chủ Nginx (website `scan.lazyy.site`) sử dụng eBPF với Grafana Beyla, kết hợp cùng Prometheus và Grafana.
 
+![Sơ đồ kiến trúc giám sát Nginx](docs/so-do-kien-truc.svg)
+
 ---
 
 ## Bước 1: Cấu hình Grafana Beyla
