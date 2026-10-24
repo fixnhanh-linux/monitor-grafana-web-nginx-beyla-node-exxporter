@@ -15,7 +15,7 @@
 
   <!-- Tiêu đề -->
   <text x="30" y="42" font-size="22" font-weight="700" fill="#0F172A">Kiến trúc giám sát Nginx</text>
-  <text x="30" y="64" font-size="14" fill="#64748B">Beyla (eBPF) + Node Exporter / Telegraf → Prometheus → Grafana</text>
+  <text x="30" y="64" font-size="14" fill="#64748B">Beyla (eBPF) + Node Exporter 1.8.0 → Prometheus → Grafana</text>
 
   <!-- ===== Cột 1: máy chủ ===== -->
   <text x="30" y="96" font-size="12" font-weight="600" fill="#94A3B8" letter-spacing="1">MÁY CHỦ NGINX</text>
@@ -50,14 +50,12 @@
   <rect x="190" y="334" width="240" height="44" rx="10" fill="#FFF1E6" stroke="#F46800"/>
   <text x="206" y="353" font-size="14" font-weight="700" fill="#9A3F00">Beyla <tspan font-weight="400">:9400</tspan></text>
   <text x="206" y="369" font-size="11" fill="#9A3F00">HTTP RED · route</text>
-  <rect x="190" y="388" width="240" height="66" rx="10" fill="#F3E8FF" stroke="#8B5CF6"/>
-  <text x="206" y="408" font-size="14" font-weight="700" fill="#5B21B6">Telegraf <tspan font-weight="400">:9125</tspan></text>
-  <text x="206" y="425" font-size="11" fill="#5B21B6">CPU · RAM · Disk · Network · TCP</text>
-  <text x="206" y="442" font-size="11" fill="#5B21B6">stub_status · access log → domain</text>
+  <rect x="190" y="388" width="240" height="66" rx="10" fill="#E8F1FF" stroke="#3B82F6"/>
+  <text x="206" y="408" font-size="14" font-weight="700" fill="#1E40AF">Node Exporter <tspan font-weight="400">:9100</tspan></text>
+  <text x="206" y="425" font-size="11" fill="#1E40AF">CPU · RAM · Disk · Network</text>
+  <text x="206" y="442" font-size="11" fill="#1E40AF">TCP · Load · Processes (v1.8.0)</text>
   <path d="M150,356 L188,356" stroke="#F46800" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#arrow-orange)"/>
   <text x="169" y="349" font-size="10" fill="#F46800" text-anchor="middle">eBPF</text>
-  <path d="M150,421 L188,421" stroke="#8B5CF6" stroke-width="1.6" stroke-dasharray="4 3"/>
-  <text x="169" y="414" font-size="10" fill="#8B5CF6" text-anchor="middle">log</text>
 
   <!-- Proxy FPT HCM -->
   <g filter="url(#shadow)">
@@ -71,14 +69,12 @@
   <rect x="190" y="532" width="240" height="44" rx="10" fill="#FFF1E6" stroke="#F46800"/>
   <text x="206" y="551" font-size="14" font-weight="700" fill="#9A3F00">Beyla <tspan font-weight="400">:9400</tspan></text>
   <text x="206" y="567" font-size="11" fill="#9A3F00">HTTP RED · route</text>
-  <rect x="190" y="586" width="240" height="66" rx="10" fill="#F3E8FF" stroke="#8B5CF6"/>
-  <text x="206" y="606" font-size="14" font-weight="700" fill="#5B21B6">Telegraf <tspan font-weight="400">:9125</tspan></text>
-  <text x="206" y="623" font-size="11" fill="#5B21B6">CPU · RAM · Disk · Network · TCP</text>
-  <text x="206" y="640" font-size="11" fill="#5B21B6">stub_status · access log → domain</text>
+  <rect x="190" y="586" width="240" height="66" rx="10" fill="#E8F1FF" stroke="#3B82F6"/>
+  <text x="206" y="606" font-size="14" font-weight="700" fill="#1E40AF">Node Exporter <tspan font-weight="400">:9100</tspan></text>
+  <text x="206" y="623" font-size="11" fill="#1E40AF">CPU · RAM · Disk · Network</text>
+  <text x="206" y="640" font-size="11" fill="#1E40AF">TCP · Load · Processes (v1.8.0)</text>
   <path d="M150,554 L188,554" stroke="#F46800" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#arrow-orange)"/>
   <text x="169" y="547" font-size="10" fill="#F46800" text-anchor="middle">eBPF</text>
-  <path d="M150,619 L188,619" stroke="#8B5CF6" stroke-width="1.6" stroke-dasharray="4 3"/>
-  <text x="169" y="612" font-size="10" fill="#8B5CF6" text-anchor="middle">log</text>
 
   <!-- ===== Mũi tên scrape vào Prometheus ===== -->
   <g fill="none" stroke="#94A3B8" stroke-width="1.6" marker-end="url(#arrow)">
@@ -105,7 +101,7 @@
   <text x="578" y="403" font-size="11" fill="#7C2D12">web-proxy-longvan-beyla.yml</text>
   <text x="570" y="428" font-size="11" font-weight="600" fill="#7C2D12">Quy tắc</text>
   <text x="578" y="446" font-size="11" fill="#7C2D12">Tên job Beyla có chữ "beyla"</text>
-  <text x="578" y="463" font-size="11" fill="#7C2D12">Telegraf / Node cùng IP với Beyla</text>
+  <text x="578" y="463" font-size="11" fill="#7C2D12">Node Exporter cùng IP với Beyla</text>
 
   <!-- Prometheus -> Grafana -->
   <path d="M780,380 L858,380" stroke="#64748B" stroke-width="2" marker-end="url(#arrow)"/>
@@ -118,7 +114,7 @@
     <rect x="862" y="106" width="308" height="564" rx="14" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
   </g>
   <text x="882" y="136" font-size="18" font-weight="700" fill="#92400E">Grafana</text>
-  <text x="882" y="156" font-size="12" fill="#92400E">Dashboard "Nginx Beyla Full"</text>
+  <text x="882" y="156" font-size="12" fill="#92400E">Dashboard "Nginx Beyla + Node Exporter"</text>
   <g font-size="11" fill="#92400E">
     <rect x="882" y="168" width="64" height="22" rx="11" fill="#FEF3C7" stroke="#FCD34D"/>
     <text x="914" y="183" text-anchor="middle">Site / Job</text>
@@ -137,8 +133,8 @@
     <text x="898" y="229">Overview — RED Metrics</text>
 
     <rect x="882" y="252" width="268" height="40" rx="8" fill="#FFFFFF" stroke="#E2E8F0"/>
-    <rect x="882" y="252" width="6" height="40" rx="3" fill="#8B5CF6"/>
-    <text x="898" y="277">Domains — Access Log</text>
+    <rect x="882" y="252" width="6" height="40" rx="3" fill="#F46800"/>
+    <text x="898" y="277">Bandwidth · Latency by Route</text>
 
     <rect x="882" y="300" width="268" height="40" rx="8" fill="#FFFFFF" stroke="#E2E8F0"/>
     <rect x="882" y="300" width="6" height="40" rx="3" fill="#F46800"/>
@@ -150,23 +146,19 @@
 
     <rect x="882" y="396" width="268" height="40" rx="8" fill="#FFFFFF" stroke="#E2E8F0"/>
     <rect x="882" y="396" width="6" height="40" rx="3" fill="#3B82F6"/>
-    <rect x="882" y="416" width="6" height="20" rx="3" fill="#8B5CF6"/>
     <text x="898" y="421">Resources — Overview</text>
 
     <rect x="882" y="444" width="268" height="40" rx="8" fill="#FFFFFF" stroke="#E2E8F0"/>
     <rect x="882" y="444" width="6" height="40" rx="3" fill="#3B82F6"/>
-    <rect x="882" y="464" width="6" height="20" rx="3" fill="#8B5CF6"/>
     <text x="898" y="469">CPU &amp; Load · Memory</text>
 
     <rect x="882" y="492" width="268" height="40" rx="8" fill="#FFFFFF" stroke="#E2E8F0"/>
     <rect x="882" y="492" width="6" height="40" rx="3" fill="#3B82F6"/>
-    <rect x="882" y="512" width="6" height="20" rx="3" fill="#8B5CF6"/>
     <text x="898" y="517">Disk · Network · TCP</text>
 
     <rect x="882" y="540" width="268" height="40" rx="8" fill="#FFFFFF" stroke="#E2E8F0"/>
     <rect x="882" y="540" width="6" height="40" rx="3" fill="#F46800"/>
-    <rect x="882" y="560" width="6" height="20" rx="3" fill="#8B5CF6"/>
-    <text x="898" y="565">Nginx Process · stub_status</text>
+    <text x="898" y="565">Nginx Process (CPU · RAM)</text>
   </g>
   <text x="1016" y="610" font-size="12" fill="#92400E" text-anchor="middle">Chọn nhiều Site / Job →</text>
   <text x="1016" y="628" font-size="12" fill="#92400E" text-anchor="middle">tài nguyên mỗi server một cột</text>
@@ -178,8 +170,6 @@
     <text x="52" y="716">Beyla (eBPF, không sửa code)</text>
     <rect x="250" y="704" width="14" height="14" rx="3" fill="#E8F1FF" stroke="#3B82F6"/>
     <text x="272" y="716">Node Exporter</text>
-    <rect x="390" y="704" width="14" height="14" rx="3" fill="#F3E8FF" stroke="#8B5CF6"/>
-    <text x="412" y="716">Telegraf (prometheus_client)</text>
     <rect x="610" y="704" width="14" height="14" rx="3" fill="#FDECE7" stroke="#E6522C"/>
     <text x="632" y="716">Prometheus</text>
     <line x1="730" y1="711" x2="770" y2="711" stroke="#94A3B8" stroke-width="1.6" marker-end="url(#arrow)"/>

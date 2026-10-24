@@ -17,22 +17,22 @@ scrape_configs:
           env: 'production'
           site: 'fpt-hcm'
 
-  # Telegraf (output prometheus_client, cổng 9125): CPU / RAM / Disk / Network + nginx stub_status.
-  # Cùng IP với Beyla ở trên để dashboard ghép đúng server.
-  - job_name: "fpt-hn-telegraf"
+  # Node Exporter 1.8.0 (cổng 9100): CPU / RAM / Disk / Network / TCP.
+  # Cùng IP với Beyla ở trên để dashboard ghép đúng server; job_name phải chứa chữ "node".
+  - job_name: "fpt-hn-node-exporter"
     scrape_interval: 15s
     metrics_path: /metrics
     static_configs:
-      - targets: ['103.237.145.7:9125']
+      - targets: ['103.237.145.7:9100']
         labels:
           env: 'production'
           site: 'fpt-hn'
 
-  - job_name: "fpt-hcm-telegraf"
+  - job_name: "fpt-hcm-node-exporter"
     scrape_interval: 15s
     metrics_path: /metrics
     static_configs:
-      - targets: ['103.48.192.132:9125']
+      - targets: ['103.48.192.132:9100']
         labels:
           env: 'production'
           site: 'fpt-hcm'

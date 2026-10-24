@@ -1,6 +1,6 @@
 # Monitor Beyla Nginx (Grafana)
 
-Giám sát Nginx bằng **Grafana Beyla** (eBPF, không cần sửa code) + **Node Exporter** hoặc **Telegraf** (tài nguyên máy chủ), thu thập bằng **Prometheus**, hiển thị trên **Grafana**.
+Giám sát Nginx bằng **Grafana Beyla** (eBPF, không cần sửa code) + **Node Exporter 1.8.0** (tài nguyên máy chủ; có bản dùng Telegraf), thu thập bằng **Prometheus**, hiển thị trên **Grafana**.
 
 ![Sơ đồ kiến trúc giám sát Nginx](docs/so-do-kien-truc.svg)
 
@@ -14,6 +14,7 @@ Giám sát Nginx bằng **Grafana Beyla** (eBPF, không cần sửa code) + **No
 | `grafana-dashboard-beyla-nginx.json` | Grafana > Dashboards > Import | Dashboard (định dạng Grafana v2, Grafana 13.x) |
 | `Huong-Dan-Giam-Sat-Beyla-Nginx.md` | — | Hướng dẫn cài đặt chi tiết từng bước |
 | `prometheus/scrape_configs/*.yml` | `/etc/prometheus/scrape_configs/` | Mỗi site một file (Beyla + Node Exporter hoặc Telegraf), dùng khi Prometheus nạp `scrape_config_files`. Job Beyla phải chứa chữ `beyla`, job Node Exporter phải chứa chữ `node`. Target tài nguyên phải cùng IP với target Beyla |
+| `grafana-dashboard-beyla-nginx-node-exporter.json` | Grafana > Dashboards > Import | **Bản dùng chính:** HTTP (Beyla) + tài nguyên chỉ từ **Node Exporter 1.8.0**, UID `beyla-nginx-node`. Job Node Exporter phải chứa chữ `node` và cùng IP với job Beyla |
 | `grafana-dashboard-beyla-nginx-telegraf.json` | Grafana > Dashboards > Import | Bản chỉ dùng **Telegraf** cho phần tài nguyên (không có `node_*`), UID `beyla-nginx-telegraf`. Dùng khi mọi máy chủ đều chạy Telegraf (output `prometheus_client`). Một datasource Prometheus duy nhất (`DS_PROMETHEUS`) phải có cả job Beyla lẫn job Telegraf |
 | `telegraf/nginx-access-domain.conf` | `/etc/telegraf/telegraf.d/` trên server nginx | Telegraf đọc access log nginx, xuất `nginx_domain_requests_total` / `nginx_domain_bytes_total` theo `domain` + `resp_code` qua cổng 9125 (cho hàng **Domains** và ô lọc **Domain**) |
 | `docs/so-do-kien-truc.svg` | — | Sơ đồ kiến trúc (ảnh ở đầu README) |
