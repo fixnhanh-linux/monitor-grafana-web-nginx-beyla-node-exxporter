@@ -2,7 +2,7 @@
   "apiVersion": "dashboard.grafana.app/v2",
   "kind": "Dashboard",
   "metadata": {
-    "name": "beyla-nginx-full",
+    "name": "beyla-nginx-node",
     "namespace": "default"
   },
   "spec": {
@@ -1940,7 +1940,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(100 * sum by (instance, mode) (rate(node_cpu_seconds_total{job=~'.*node.*', instance=~\"${server_ip}.*\", mode!='idle'}[$__rate_interval])) / on (instance) group_left count by (instance) (node_cpu_seconds_total{job=~'.*node.*', instance=~\"${server_ip}.*\", mode='idle'})) or (label_replace({__name__=~\"cpu_usage_(user|system|iowait|steal|irq|softirq|nice)\", cpu=\"cpu-total\", instance=~\"${server_ip}.*\"}, \"mode\", \"$1\", \"__name__\", \"cpu_usage_(.*)\"))",
+                        "expr": "100 * sum by (instance, mode) (rate(node_cpu_seconds_total{job=~'.*node.*', instance=~\"${server_ip}.*\", mode!='idle'}[$__rate_interval])) / on (instance) group_left count by (instance) (node_cpu_seconds_total{job=~'.*node.*', instance=~\"${server_ip}.*\", mode='idle'})",
                         "legendFormat": "{{mode}}",
                         "range": true
                       }
@@ -2041,7 +2041,7 @@
               }
             }
           },
-          "description": "CPU xếp chồng theo mode (user, system, iowait, steal...), đã chia cho số core. iowait cao = đang chờ ổ đĩa; steal cao = máy ảo bị host giành CPU. Nguồn: Node Exporter hoặc Telegraf (máy chủ có nguồn nào thì hiện nguồn đó).",
+          "description": "CPU xếp chồng theo mode (user, system, iowait, steal...), đã chia cho số core. iowait cao = đang chờ ổ đĩa; steal cao = máy ảo bị host giành CPU. Nguồn: Node Exporter.",
           "links": []
         }
       },
@@ -2066,7 +2066,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(100 * (1 - node_memory_MemAvailable_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"} / node_memory_MemTotal_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"})) or (100 - mem_available_percent{instance=~\"${server_ip}.*\"})",
+                        "expr": "100 * (1 - node_memory_MemAvailable_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"} / node_memory_MemTotal_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"})",
                         "legendFormat": "RAM used",
                         "range": true
                       }
@@ -2087,7 +2087,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(100 * (1 - node_memory_SwapFree_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"} / (node_memory_SwapTotal_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"} > 0))) or (swap_used_percent{instance=~\"${server_ip}.*\"} and swap_total{instance=~\"${server_ip}.*\"} > 0)",
+                        "expr": "100 * (1 - node_memory_SwapFree_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"} / (node_memory_SwapTotal_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"} > 0))",
                         "legendFormat": "Swap used",
                         "range": true
                       }
@@ -2192,7 +2192,7 @@
               }
             }
           },
-          "description": "RAM đã dùng tính theo MemAvailable (đã trừ cache có thể giải phóng) và Swap đã dùng. Nguồn: Node Exporter hoặc Telegraf (máy chủ có nguồn nào thì hiện nguồn đó).",
+          "description": "RAM đã dùng tính theo MemAvailable (đã trừ cache có thể giải phóng) và Swap đã dùng. Nguồn: Node Exporter.",
           "links": []
         }
       },
@@ -2217,7 +2217,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(100 - (node_filesystem_avail_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\", fstype!~'tmpfs|overlay|squashfs|devtmpfs|ramfs|nsfs|fuse.*'} / node_filesystem_size_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\", fstype!~'tmpfs|overlay|squashfs|devtmpfs|ramfs|nsfs|fuse.*'} * 100)) or (label_replace(disk_used_percent{instance=~\"${server_ip}.*\", fstype!~\"tmpfs|overlay|squashfs|devtmpfs|ramfs|nsfs|fuse.*\"}, \"mountpoint\", \"$1\", \"path\", \"(.*)\"))",
+                        "expr": "100 - (node_filesystem_avail_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\", fstype!~'tmpfs|overlay|squashfs|devtmpfs|ramfs|nsfs|fuse.*'} / node_filesystem_size_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\", fstype!~'tmpfs|overlay|squashfs|devtmpfs|ramfs|nsfs|fuse.*'} * 100)",
                         "legendFormat": "{{mountpoint}}",
                         "range": true
                       }
@@ -2322,7 +2322,7 @@
               }
             }
           },
-          "description": "Phần trăm dung lượng đã dùng của từng mount point theo thời gian. Nguồn: Node Exporter hoặc Telegraf (máy chủ có nguồn nào thì hiện nguồn đó).",
+          "description": "Phần trăm dung lượng đã dùng của từng mount point theo thời gian. Nguồn: Node Exporter.",
           "links": []
         }
       },
@@ -2347,7 +2347,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(sum by (instance, device) (rate(node_network_receive_bytes_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'lo|veth.*|docker.*|br.*'}[$__rate_interval]))) or (sum by (instance, device) (label_replace(rate(net_bytes_recv{instance=~\"${server_ip}.*\", interface!~\"lo|veth.*|docker.*|br.*|all\"}[$__rate_interval]), \"device\", \"$1\", \"interface\", \"(.*)\")))",
+                        "expr": "sum by (instance, device) (rate(node_network_receive_bytes_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'lo|veth.*|docker.*|br.*'}[$__rate_interval]))",
                         "legendFormat": "{{device}} receive",
                         "range": true
                       }
@@ -2368,7 +2368,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(sum by (instance, device) (rate(node_network_transmit_bytes_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'lo|veth.*|docker.*|br.*'}[$__rate_interval]))) or (sum by (instance, device) (label_replace(rate(net_bytes_sent{instance=~\"${server_ip}.*\", interface!~\"lo|veth.*|docker.*|br.*|all\"}[$__rate_interval]), \"device\", \"$1\", \"interface\", \"(.*)\")))",
+                        "expr": "sum by (instance, device) (rate(node_network_transmit_bytes_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'lo|veth.*|docker.*|br.*'}[$__rate_interval]))",
                         "legendFormat": "{{device}} transmit",
                         "range": true
                       }
@@ -2480,7 +2480,7 @@
               }
             }
           },
-          "description": "Lưu lượng mạng theo card: nhận (receive) phía trên, gửi (transmit) phía dưới trục 0. Nguồn: Node Exporter hoặc Telegraf (máy chủ có nguồn nào thì hiện nguồn đó).",
+          "description": "Lưu lượng mạng theo card: nhận (receive) phía trên, gửi (transmit) phía dưới trục 0. Nguồn: Node Exporter.",
           "links": []
         }
       },
@@ -2489,7 +2489,7 @@
         "spec": {
           "id": 27,
           "title": "Load Average — ${server_ip}",
-          "description": "Load 1 / 5 / 15 phút. Đường đỏ nét đứt là số core; load vượt đường này là CPU quá tải. Nguồn: Node Exporter hoặc Telegraf (máy chủ có nguồn nào thì hiện nguồn đó).",
+          "description": "Load 1 / 5 / 15 phút. Đường đỏ nét đứt là số core; load vượt đường này là CPU quá tải. Nguồn: Node Exporter.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -2507,7 +2507,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(node_load1{job=~'.*node.*', instance=~\"${server_ip}.*\"}) or (system_load1{instance=~\"${server_ip}.*\"})",
+                        "expr": "node_load1{job=~'.*node.*', instance=~\"${server_ip}.*\"}",
                         "legendFormat": "Load 1m",
                         "range": true
                       }
@@ -2528,7 +2528,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(node_load5{job=~'.*node.*', instance=~\"${server_ip}.*\"}) or (system_load5{instance=~\"${server_ip}.*\"})",
+                        "expr": "node_load5{job=~'.*node.*', instance=~\"${server_ip}.*\"}",
                         "legendFormat": "Load 5m",
                         "range": true
                       }
@@ -2549,7 +2549,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(node_load15{job=~'.*node.*', instance=~\"${server_ip}.*\"}) or (system_load15{instance=~\"${server_ip}.*\"})",
+                        "expr": "node_load15{job=~'.*node.*', instance=~\"${server_ip}.*\"}",
                         "legendFormat": "Load 15m",
                         "range": true
                       }
@@ -2570,7 +2570,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(count by (instance) (node_cpu_seconds_total{job=~'.*node.*', instance=~\"${server_ip}.*\", mode='idle'})) or (system_n_cpus{instance=~\"${server_ip}.*\"})",
+                        "expr": "count by (instance) (node_cpu_seconds_total{job=~'.*node.*', instance=~\"${server_ip}.*\", mode='idle'})",
                         "legendFormat": "CPU cores",
                         "range": true
                       }
@@ -2714,7 +2714,7 @@
         "spec": {
           "id": 28,
           "title": "Memory Breakdown — ${server_ip}",
-          "description": "Used / Buffers + Cache / Free xếp chồng; đường đỏ nét đứt là tổng RAM. Nguồn: Node Exporter hoặc Telegraf (máy chủ có nguồn nào thì hiện nguồn đó).",
+          "description": "Used / Buffers + Cache / Free xếp chồng; đường đỏ nét đứt là tổng RAM. Nguồn: Node Exporter.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -2732,7 +2732,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(node_memory_MemTotal_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"} - node_memory_MemAvailable_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"}) or (mem_total{instance=~\"${server_ip}.*\"} - mem_available{instance=~\"${server_ip}.*\"})",
+                        "expr": "node_memory_MemTotal_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"} - node_memory_MemAvailable_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"}",
                         "legendFormat": "Used",
                         "range": true
                       }
@@ -2753,7 +2753,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(node_memory_Buffers_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"} + node_memory_Cached_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"} + node_memory_SReclaimable_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"}) or (mem_buffered{instance=~\"${server_ip}.*\"} + mem_cached{instance=~\"${server_ip}.*\"} + mem_sreclaimable{instance=~\"${server_ip}.*\"})",
+                        "expr": "node_memory_Buffers_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"} + node_memory_Cached_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"} + node_memory_SReclaimable_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"}",
                         "legendFormat": "Buffers + Cache",
                         "range": true
                       }
@@ -2774,7 +2774,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(node_memory_MemFree_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"}) or (mem_free{instance=~\"${server_ip}.*\"})",
+                        "expr": "node_memory_MemFree_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"}",
                         "legendFormat": "Free",
                         "range": true
                       }
@@ -2795,7 +2795,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(node_memory_MemTotal_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"}) or (mem_total{instance=~\"${server_ip}.*\"})",
+                        "expr": "node_memory_MemTotal_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"}",
                         "legendFormat": "Total RAM",
                         "range": true
                       }
@@ -2939,7 +2939,7 @@
         "spec": {
           "id": 29,
           "title": "Disk Usage by Mount Point — ${server_ip}",
-          "description": "Phần trăm dung lượng đã dùng của từng mount point. Vàng ≥ 70%, đỏ ≥ 90%. Nguồn: Node Exporter hoặc Telegraf (máy chủ có nguồn nào thì hiện nguồn đó).",
+          "description": "Phần trăm dung lượng đã dùng của từng mount point. Vàng ≥ 70%, đỏ ≥ 90%. Nguồn: Node Exporter.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -2957,7 +2957,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(100 - (node_filesystem_avail_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\", fstype!~'tmpfs|overlay|squashfs|devtmpfs|ramfs|nsfs|fuse.*'} / node_filesystem_size_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\", fstype!~'tmpfs|overlay|squashfs|devtmpfs|ramfs|nsfs|fuse.*'} * 100)) or (label_replace(disk_used_percent{instance=~\"${server_ip}.*\", fstype!~\"tmpfs|overlay|squashfs|devtmpfs|ramfs|nsfs|fuse.*\"}, \"mountpoint\", \"$1\", \"path\", \"(.*)\"))",
+                        "expr": "100 - (node_filesystem_avail_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\", fstype!~'tmpfs|overlay|squashfs|devtmpfs|ramfs|nsfs|fuse.*'} / node_filesystem_size_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\", fstype!~'tmpfs|overlay|squashfs|devtmpfs|ramfs|nsfs|fuse.*'} * 100)",
                         "legendFormat": "{{mountpoint}}",
                         "range": false,
                         "instant": true
@@ -3039,7 +3039,7 @@
         "spec": {
           "id": 30,
           "title": "Free Space by Mount Point — ${server_ip}",
-          "description": "Dung lượng còn trống của từng mount point. Nguồn: Node Exporter hoặc Telegraf (máy chủ có nguồn nào thì hiện nguồn đó).",
+          "description": "Dung lượng còn trống của từng mount point. Nguồn: Node Exporter.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -3057,7 +3057,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(node_filesystem_avail_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\", fstype!~'tmpfs|overlay|squashfs|devtmpfs|ramfs|nsfs|fuse.*'}) or (label_replace(disk_free{instance=~\"${server_ip}.*\", fstype!~\"tmpfs|overlay|squashfs|devtmpfs|ramfs|nsfs|fuse.*\"}, \"mountpoint\", \"$1\", \"path\", \"(.*)\"))",
+                        "expr": "node_filesystem_avail_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\", fstype!~'tmpfs|overlay|squashfs|devtmpfs|ramfs|nsfs|fuse.*'}",
                         "legendFormat": "{{mountpoint}}",
                         "range": false,
                         "instant": true
@@ -3129,7 +3129,7 @@
         "spec": {
           "id": 31,
           "title": "Disk I/O Throughput — ${server_ip}",
-          "description": "Tốc độ đọc/ghi ổ đĩa: đọc phía trên, ghi phía dưới trục 0. Nguồn: Node Exporter hoặc Telegraf (máy chủ có nguồn nào thì hiện nguồn đó).",
+          "description": "Tốc độ đọc/ghi ổ đĩa: đọc phía trên, ghi phía dưới trục 0. Nguồn: Node Exporter.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -3147,7 +3147,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(sum by (instance, device) (rate(node_disk_read_bytes_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'loop.*|ram.*|sr.*|dm-.*'}[$__rate_interval]))) or (sum by (instance, device) (label_replace(rate(diskio_read_bytes{instance=~\"${server_ip}.*\", name!~\"loop.*|ram.*|sr.*|dm-.*|(sd|vd|xvd)[a-z]+[0-9]+|nvme.*p[0-9]+\"}[$__rate_interval]), \"device\", \"$1\", \"name\", \"(.*)\")))",
+                        "expr": "sum by (instance, device) (rate(node_disk_read_bytes_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'loop.*|ram.*|sr.*|dm-.*'}[$__rate_interval]))",
                         "legendFormat": "{{device}} read",
                         "range": true
                       }
@@ -3168,7 +3168,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(sum by (instance, device) (rate(node_disk_written_bytes_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'loop.*|ram.*|sr.*|dm-.*'}[$__rate_interval]))) or (sum by (instance, device) (label_replace(rate(diskio_write_bytes{instance=~\"${server_ip}.*\", name!~\"loop.*|ram.*|sr.*|dm-.*|(sd|vd|xvd)[a-z]+[0-9]+|nvme.*p[0-9]+\"}[$__rate_interval]), \"device\", \"$1\", \"name\", \"(.*)\")))",
+                        "expr": "sum by (instance, device) (rate(node_disk_written_bytes_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'loop.*|ram.*|sr.*|dm-.*'}[$__rate_interval]))",
                         "legendFormat": "{{device}} write",
                         "range": true
                       }
@@ -3287,7 +3287,7 @@
         "spec": {
           "id": 32,
           "title": "Disk IOPS — ${server_ip}",
-          "description": "Số thao tác đọc/ghi mỗi giây: đọc phía trên, ghi phía dưới trục 0. Nguồn: Node Exporter hoặc Telegraf (máy chủ có nguồn nào thì hiện nguồn đó).",
+          "description": "Số thao tác đọc/ghi mỗi giây: đọc phía trên, ghi phía dưới trục 0. Nguồn: Node Exporter.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -3305,7 +3305,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(sum by (instance, device) (rate(node_disk_reads_completed_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'loop.*|ram.*|sr.*|dm-.*'}[$__rate_interval]))) or (sum by (instance, device) (label_replace(rate(diskio_reads{instance=~\"${server_ip}.*\", name!~\"loop.*|ram.*|sr.*|dm-.*|(sd|vd|xvd)[a-z]+[0-9]+|nvme.*p[0-9]+\"}[$__rate_interval]), \"device\", \"$1\", \"name\", \"(.*)\")))",
+                        "expr": "sum by (instance, device) (rate(node_disk_reads_completed_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'loop.*|ram.*|sr.*|dm-.*'}[$__rate_interval]))",
                         "legendFormat": "{{device}} read",
                         "range": true
                       }
@@ -3326,7 +3326,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(sum by (instance, device) (rate(node_disk_writes_completed_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'loop.*|ram.*|sr.*|dm-.*'}[$__rate_interval]))) or (sum by (instance, device) (label_replace(rate(diskio_writes{instance=~\"${server_ip}.*\", name!~\"loop.*|ram.*|sr.*|dm-.*|(sd|vd|xvd)[a-z]+[0-9]+|nvme.*p[0-9]+\"}[$__rate_interval]), \"device\", \"$1\", \"name\", \"(.*)\")))",
+                        "expr": "sum by (instance, device) (rate(node_disk_writes_completed_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'loop.*|ram.*|sr.*|dm-.*'}[$__rate_interval]))",
                         "legendFormat": "{{device}} write",
                         "range": true
                       }
@@ -3445,7 +3445,7 @@
         "spec": {
           "id": 33,
           "title": "Disk I/O Utilization — ${server_ip}",
-          "description": "Phần trăm thời gian ổ đĩa bận. Gần 100% là ổ đĩa đang nghẽn. Nguồn: Node Exporter hoặc Telegraf (máy chủ có nguồn nào thì hiện nguồn đó).",
+          "description": "Phần trăm thời gian ổ đĩa bận. Gần 100% là ổ đĩa đang nghẽn. Nguồn: Node Exporter.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -3463,7 +3463,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(100 * rate(node_disk_io_time_seconds_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'loop.*|ram.*|sr.*|dm-.*'}[$__rate_interval])) or (sum by (instance, device) (label_replace(rate(diskio_io_time{instance=~\"${server_ip}.*\", name!~\"loop.*|ram.*|sr.*|dm-.*|(sd|vd|xvd)[a-z]+[0-9]+|nvme.*p[0-9]+\"}[$__rate_interval]), \"device\", \"$1\", \"name\", \"(.*)\")) / 10)",
+                        "expr": "100 * rate(node_disk_io_time_seconds_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'loop.*|ram.*|sr.*|dm-.*'}[$__rate_interval])",
                         "legendFormat": "{{device}}",
                         "range": true
                       }
@@ -3571,7 +3571,7 @@
         "spec": {
           "id": 34,
           "title": "Network Errors & Drops — ${server_ip}",
-          "description": "Gói tin lỗi (errors) hoặc bị bỏ (dropped) trên card mạng. Bình thường phải bằng 0. Nguồn: Node Exporter hoặc Telegraf (máy chủ có nguồn nào thì hiện nguồn đó).",
+          "description": "Gói tin lỗi (errors) hoặc bị bỏ (dropped) trên card mạng. Bình thường phải bằng 0. Nguồn: Node Exporter.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -3589,7 +3589,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(sum by (instance) (rate(node_network_receive_errs_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'lo|veth.*|docker.*|br.*'}[$__rate_interval]))) or (sum by (instance) (rate(net_err_in{instance=~\"${server_ip}.*\", interface!~\"lo|veth.*|docker.*|br.*|all\"}[$__rate_interval])))",
+                        "expr": "sum by (instance) (rate(node_network_receive_errs_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'lo|veth.*|docker.*|br.*'}[$__rate_interval]))",
                         "legendFormat": "RX errors",
                         "range": true
                       }
@@ -3610,7 +3610,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(sum by (instance) (rate(node_network_transmit_errs_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'lo|veth.*|docker.*|br.*'}[$__rate_interval]))) or (sum by (instance) (rate(net_err_out{instance=~\"${server_ip}.*\", interface!~\"lo|veth.*|docker.*|br.*|all\"}[$__rate_interval])))",
+                        "expr": "sum by (instance) (rate(node_network_transmit_errs_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'lo|veth.*|docker.*|br.*'}[$__rate_interval]))",
                         "legendFormat": "TX errors",
                         "range": true
                       }
@@ -3631,7 +3631,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(sum by (instance) (rate(node_network_receive_drop_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'lo|veth.*|docker.*|br.*'}[$__rate_interval]))) or (sum by (instance) (rate(net_drop_in{instance=~\"${server_ip}.*\", interface!~\"lo|veth.*|docker.*|br.*|all\"}[$__rate_interval])))",
+                        "expr": "sum by (instance) (rate(node_network_receive_drop_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'lo|veth.*|docker.*|br.*'}[$__rate_interval]))",
                         "legendFormat": "RX dropped",
                         "range": true
                       }
@@ -3652,7 +3652,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(sum by (instance) (rate(node_network_transmit_drop_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'lo|veth.*|docker.*|br.*'}[$__rate_interval]))) or (sum by (instance) (rate(net_drop_out{instance=~\"${server_ip}.*\", interface!~\"lo|veth.*|docker.*|br.*|all\"}[$__rate_interval])))",
+                        "expr": "sum by (instance) (rate(node_network_transmit_drop_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'lo|veth.*|docker.*|br.*'}[$__rate_interval]))",
                         "legendFormat": "TX dropped",
                         "range": true
                       }
@@ -3758,7 +3758,7 @@
         "spec": {
           "id": 35,
           "title": "TCP Connections — ${server_ip}",
-          "description": "Kết nối TCP trên máy chủ: Established = đang kết nối, TIME_WAIT = đang chờ đóng, In use = tổng socket TCP đang mở. Nguồn: Node Exporter hoặc Telegraf (máy chủ có nguồn nào thì hiện nguồn đó).",
+          "description": "Kết nối TCP trên máy chủ: Established = đang kết nối, TIME_WAIT = đang chờ đóng, In use = tổng socket TCP đang mở. Nguồn: Node Exporter.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -3776,7 +3776,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(node_netstat_Tcp_CurrEstab{job=~'.*node.*', instance=~\"${server_ip}.*\"}) or (net_tcp_currestab{instance=~\"${server_ip}.*\"})",
+                        "expr": "node_netstat_Tcp_CurrEstab{job=~'.*node.*', instance=~\"${server_ip}.*\"}",
                         "legendFormat": "Established",
                         "range": true
                       }
@@ -4175,7 +4175,7 @@
         "spec": {
           "id": 39,
           "title": "Server Info — ${server_ip}",
-          "description": "Thông tin máy chủ: thời gian chạy liên tục, số core CPU, tổng RAM, Load 1 phút trên mỗi core (> 1 là CPU quá tải) và số tiến trình nginx Beyla đang theo dõi. Nguồn: Node Exporter hoặc Telegraf (máy chủ có nguồn nào thì hiện nguồn đó).",
+          "description": "Thông tin máy chủ: thời gian chạy liên tục, số core CPU, tổng RAM, Load 1 phút trên mỗi core (> 1 là CPU quá tải) và số tiến trình nginx Beyla đang theo dõi. Nguồn: Node Exporter.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -4193,7 +4193,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(node_time_seconds{job=~'.*node.*', instance=~\"${server_ip}.*\"} - node_boot_time_seconds{job=~'.*node.*', instance=~\"${server_ip}.*\"}) or (system_uptime{instance=~\"${server_ip}.*\"})",
+                        "expr": "node_time_seconds{job=~'.*node.*', instance=~\"${server_ip}.*\"} - node_boot_time_seconds{job=~'.*node.*', instance=~\"${server_ip}.*\"}",
                         "legendFormat": "Uptime",
                         "range": false,
                         "instant": true
@@ -4215,7 +4215,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(count by (instance) (node_cpu_seconds_total{job=~'.*node.*', instance=~\"${server_ip}.*\", mode='idle'})) or (system_n_cpus{instance=~\"${server_ip}.*\"})",
+                        "expr": "count by (instance) (node_cpu_seconds_total{job=~'.*node.*', instance=~\"${server_ip}.*\", mode='idle'})",
                         "legendFormat": "CPU Cores",
                         "range": false,
                         "instant": true
@@ -4237,7 +4237,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(node_memory_MemTotal_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"}) or (mem_total{instance=~\"${server_ip}.*\"})",
+                        "expr": "node_memory_MemTotal_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"}",
                         "legendFormat": "RAM Total",
                         "range": false,
                         "instant": true
@@ -4259,7 +4259,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(node_load1{job=~'.*node.*', instance=~\"${server_ip}.*\"} / on (instance) count by (instance) (node_cpu_seconds_total{job=~'.*node.*', instance=~\"${server_ip}.*\", mode='idle'})) or (system_load1{instance=~\"${server_ip}.*\"} / system_n_cpus{instance=~\"${server_ip}.*\"})",
+                        "expr": "node_load1{job=~'.*node.*', instance=~\"${server_ip}.*\"} / on (instance) count by (instance) (node_cpu_seconds_total{job=~'.*node.*', instance=~\"${server_ip}.*\", mode='idle'})",
                         "legendFormat": "Load 1m / Core",
                         "range": false,
                         "instant": true
@@ -4531,7 +4531,7 @@
         "spec": {
           "id": 40,
           "title": "Resource Usage — ${server_ip}",
-          "description": "Phần trăm đang dùng: CPU (trung bình mọi core), RAM (theo MemAvailable), phân vùng gốc / và Swap. Vàng là cần chú ý, đỏ là sắp hết. Nguồn: Node Exporter hoặc Telegraf (máy chủ có nguồn nào thì hiện nguồn đó).",
+          "description": "Phần trăm đang dùng: CPU (trung bình mọi core), RAM (theo MemAvailable), phân vùng gốc / và Swap. Vàng là cần chú ý, đỏ là sắp hết. Nguồn: Node Exporter.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -4549,7 +4549,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(100 * (1 - avg by (instance) (rate(node_cpu_seconds_total{job=~'.*node.*', instance=~\"${server_ip}.*\", mode='idle'}[$__rate_interval])))) or (100 - cpu_usage_idle{instance=~\"${server_ip}.*\", cpu=\"cpu-total\"})",
+                        "expr": "100 * (1 - avg by (instance) (rate(node_cpu_seconds_total{job=~'.*node.*', instance=~\"${server_ip}.*\", mode='idle'}[$__rate_interval])))",
                         "legendFormat": "CPU Busy",
                         "range": false,
                         "instant": true
@@ -4571,7 +4571,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(100 * (1 - node_memory_MemAvailable_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"} / node_memory_MemTotal_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"})) or (100 - mem_available_percent{instance=~\"${server_ip}.*\"})",
+                        "expr": "100 * (1 - node_memory_MemAvailable_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"} / node_memory_MemTotal_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"})",
                         "legendFormat": "RAM Used",
                         "range": false,
                         "instant": true
@@ -4593,7 +4593,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(100 - (node_filesystem_avail_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\", mountpoint='/'} / node_filesystem_size_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\", mountpoint='/'} * 100)) or (disk_used_percent{instance=~\"${server_ip}.*\", path=\"/\"})",
+                        "expr": "100 - (node_filesystem_avail_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\", mountpoint='/'} / node_filesystem_size_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\", mountpoint='/'} * 100)",
                         "legendFormat": "Disk / Used",
                         "range": false,
                         "instant": true
@@ -4615,7 +4615,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(100 * (1 - node_memory_SwapFree_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"} / (node_memory_SwapTotal_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"} > 0))) or (swap_used_percent{instance=~\"${server_ip}.*\"} and swap_total{instance=~\"${server_ip}.*\"} > 0)",
+                        "expr": "100 * (1 - node_memory_SwapFree_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"} / (node_memory_SwapTotal_bytes{job=~'.*node.*', instance=~\"${server_ip}.*\"} > 0))",
                         "legendFormat": "Swap Used",
                         "range": false,
                         "instant": true
@@ -4873,221 +4873,12 @@
           }
         }
       },
-      "panel-41": {
-        "kind": "Panel",
-        "spec": {
-          "id": 41,
-          "title": "Nginx Connections (stub_status) — ${server_ip}",
-          "description": "Kết nối nginx lấy từ stub_status qua Telegraf: Active = tổng kết nối đang mở, Reading = đang đọc request, Writing = đang trả response, Waiting = keep-alive đang chờ. Requests/s = số request mỗi giây. Chỉ có dữ liệu ở máy chủ cài Telegraf với input nginx.",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "${DS_PROMETHEUS}"
-                      },
-                      "spec": {
-                        "editorMode": "code",
-                        "expr": "sum by (instance) (nginx_active{instance=~\"${server_ip}.*\"})",
-                        "legendFormat": "Active",
-                        "range": true
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "${DS_PROMETHEUS}"
-                      },
-                      "spec": {
-                        "editorMode": "code",
-                        "expr": "sum by (instance) (nginx_reading{instance=~\"${server_ip}.*\"})",
-                        "legendFormat": "Reading",
-                        "range": true
-                      }
-                    },
-                    "refId": "B",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "${DS_PROMETHEUS}"
-                      },
-                      "spec": {
-                        "editorMode": "code",
-                        "expr": "sum by (instance) (nginx_writing{instance=~\"${server_ip}.*\"})",
-                        "legendFormat": "Writing",
-                        "range": true
-                      }
-                    },
-                    "refId": "C",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "${DS_PROMETHEUS}"
-                      },
-                      "spec": {
-                        "editorMode": "code",
-                        "expr": "sum by (instance) (nginx_waiting{instance=~\"${server_ip}.*\"})",
-                        "legendFormat": "Waiting",
-                        "range": true
-                      }
-                    },
-                    "refId": "D",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "${DS_PROMETHEUS}"
-                      },
-                      "spec": {
-                        "editorMode": "code",
-                        "expr": "sum by (instance) (rate(nginx_requests{instance=~\"${server_ip}.*\"}[$__rate_interval]))",
-                        "legendFormat": "Requests/s",
-                        "range": true
-                      }
-                    },
-                    "refId": "E",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "13.1.0",
-            "spec": {
-              "options": {
-                "annotations": {
-                  "clustering": -1,
-                  "multiLane": false
-                },
-                "legend": {
-                  "calcs": [
-                    "mean",
-                    "max"
-                  ],
-                  "displayMode": "table",
-                  "enableFacetedFilter": false,
-                  "overflow": "ellipsis",
-                  "placement": "right",
-                  "showLegend": true
-                },
-                "tooltip": {
-                  "hideZeros": false,
-                  "mode": "multi",
-                  "sort": "desc"
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "short",
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "green"
-                      },
-                      {
-                        "value": 80,
-                        "color": "red"
-                      }
-                    ]
-                  },
-                  "color": {
-                    "mode": "palette-classic"
-                  },
-                  "custom": {
-                    "axisBorderShow": false,
-                    "axisCenteredZero": false,
-                    "axisColorMode": "text",
-                    "axisLabel": "",
-                    "axisPlacement": "auto",
-                    "barAlignment": 0,
-                    "barWidthFactor": 0.6,
-                    "drawStyle": "line",
-                    "fillOpacity": 0,
-                    "gradientMode": "none",
-                    "hideFrom": {
-                      "legend": false,
-                      "tooltip": false,
-                      "viz": false
-                    },
-                    "insertNulls": false,
-                    "lineInterpolation": "linear",
-                    "lineWidth": 2,
-                    "pointSize": 5,
-                    "scaleDistribution": {
-                      "type": "linear"
-                    },
-                    "showPoints": "never",
-                    "showValues": false,
-                    "spanNulls": false,
-                    "stacking": {
-                      "group": "A",
-                      "mode": "none"
-                    },
-                    "thresholdsStyle": {
-                      "mode": "off"
-                    }
-                  },
-                  "min": 0
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
       "panel-42": {
         "kind": "Panel",
         "spec": {
           "id": 42,
           "title": "Processes — ${server_ip}",
-          "description": "Số tiến trình theo trạng thái. Blocked cao = đang chờ I/O; Zombies > 0 kéo dài = có tiến trình cha không dọn tiến trình con. Nguồn: Node Exporter hoặc Telegraf (máy chủ có nguồn nào thì hiện nguồn đó).",
+          "description": "Số tiến trình đang chạy (Running) và đang chờ I/O (Blocked). Blocked cao kéo dài = ổ đĩa hoặc mạng đang nghẽn. Nguồn: Node Exporter.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -5105,7 +4896,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(node_procs_running{job=~'.*node.*', instance=~\"${server_ip}.*\"}) or (processes_running{instance=~\"${server_ip}.*\"})",
+                        "expr": "node_procs_running{job=~'.*node.*', instance=~\"${server_ip}.*\"}",
                         "legendFormat": "Running",
                         "range": true
                       }
@@ -5126,75 +4917,12 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(node_procs_blocked{job=~'.*node.*', instance=~\"${server_ip}.*\"}) or (processes_blocked{instance=~\"${server_ip}.*\"})",
+                        "expr": "node_procs_blocked{job=~'.*node.*', instance=~\"${server_ip}.*\"}",
                         "legendFormat": "Blocked",
                         "range": true
                       }
                     },
                     "refId": "B",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "${DS_PROMETHEUS}"
-                      },
-                      "spec": {
-                        "editorMode": "code",
-                        "expr": "processes_sleeping{instance=~\"${server_ip}.*\"}",
-                        "legendFormat": "Sleeping",
-                        "range": true
-                      }
-                    },
-                    "refId": "C",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "${DS_PROMETHEUS}"
-                      },
-                      "spec": {
-                        "editorMode": "code",
-                        "expr": "processes_zombies{instance=~\"${server_ip}.*\"}",
-                        "legendFormat": "Zombies",
-                        "range": true
-                      }
-                    },
-                    "refId": "D",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "${DS_PROMETHEUS}"
-                      },
-                      "spec": {
-                        "editorMode": "code",
-                        "expr": "processes_total_threads{instance=~\"${server_ip}.*\"}",
-                        "legendFormat": "Threads",
-                        "range": true
-                      }
-                    },
-                    "refId": "E",
                     "hidden": false
                   }
                 }
@@ -5296,7 +5024,7 @@
         "spec": {
           "id": 43,
           "title": "Context Switches & Interrupts — ${server_ip}",
-          "description": "Số lần CPU đổi tiến trình (context switch), số ngắt phần cứng (interrupt) và số tiến trình mới được tạo (fork) mỗi giây. Tăng đột biến thường đi kèm tải cao hoặc quá nhiều tiến trình/luồng. Nguồn: Node Exporter hoặc Telegraf (máy chủ có nguồn nào thì hiện nguồn đó).",
+          "description": "Số lần CPU đổi tiến trình (context switch), số ngắt phần cứng (interrupt) và số tiến trình mới được tạo (fork) mỗi giây. Tăng đột biến thường đi kèm tải cao hoặc quá nhiều tiến trình/luồng. Nguồn: Node Exporter.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -5314,7 +5042,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(rate(node_context_switches_total{job=~'.*node.*', instance=~\"${server_ip}.*\"}[$__rate_interval])) or (rate(kernel_context_switches{instance=~\"${server_ip}.*\"}[$__rate_interval]))",
+                        "expr": "rate(node_context_switches_total{job=~'.*node.*', instance=~\"${server_ip}.*\"}[$__rate_interval])",
                         "legendFormat": "Context switches",
                         "range": true
                       }
@@ -5335,7 +5063,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(rate(node_intr_total{job=~'.*node.*', instance=~\"${server_ip}.*\"}[$__rate_interval])) or (rate(kernel_interrupts{instance=~\"${server_ip}.*\"}[$__rate_interval]))",
+                        "expr": "rate(node_intr_total{job=~'.*node.*', instance=~\"${server_ip}.*\"}[$__rate_interval])",
                         "legendFormat": "Interrupts",
                         "range": true
                       }
@@ -5356,7 +5084,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(rate(node_forks_total{job=~'.*node.*', instance=~\"${server_ip}.*\"}[$__rate_interval])) or (rate(kernel_processes_forked{instance=~\"${server_ip}.*\"}[$__rate_interval]))",
+                        "expr": "rate(node_forks_total{job=~'.*node.*', instance=~\"${server_ip}.*\"}[$__rate_interval])",
                         "legendFormat": "Forks",
                         "range": true
                       }
@@ -5463,7 +5191,7 @@
         "spec": {
           "id": 44,
           "title": "Swap I/O — ${server_ip}",
-          "description": "Dữ liệu chuyển giữa RAM và swap mỗi giây: swap in phía trên, swap out phía dưới trục 0. Swap I/O liên tục là dấu hiệu thiếu RAM, máy sẽ chậm rõ rệt. Nguồn: Node Exporter hoặc Telegraf (máy chủ có nguồn nào thì hiện nguồn đó).",
+          "description": "Dữ liệu chuyển giữa RAM và swap mỗi giây: swap in phía trên, swap out phía dưới trục 0. Swap I/O liên tục là dấu hiệu thiếu RAM, máy sẽ chậm rõ rệt. Nguồn: Node Exporter.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -5481,7 +5209,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(rate(node_vmstat_pswpin{job=~'.*node.*', instance=~\"${server_ip}.*\"}[$__rate_interval]) * 4096) or (rate(swap_in{instance=~\"${server_ip}.*\"}[$__rate_interval]))",
+                        "expr": "rate(node_vmstat_pswpin{job=~'.*node.*', instance=~\"${server_ip}.*\"}[$__rate_interval]) * 4096",
                         "legendFormat": "Swap in",
                         "range": true
                       }
@@ -5502,7 +5230,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(rate(node_vmstat_pswpout{job=~'.*node.*', instance=~\"${server_ip}.*\"}[$__rate_interval]) * 4096) or (rate(swap_out{instance=~\"${server_ip}.*\"}[$__rate_interval]))",
+                        "expr": "rate(node_vmstat_pswpout{job=~'.*node.*', instance=~\"${server_ip}.*\"}[$__rate_interval]) * 4096",
                         "legendFormat": "Swap out",
                         "range": true
                       }
@@ -5622,7 +5350,7 @@
         "spec": {
           "id": 45,
           "title": "Inodes Used by Mount Point — ${server_ip}",
-          "description": "Phần trăm inode đã dùng. Hết inode thì không tạo được file mới dù ổ đĩa còn trống (hay gặp khi có quá nhiều file nhỏ: cache, session, log). Nguồn: Node Exporter hoặc Telegraf (máy chủ có nguồn nào thì hiện nguồn đó).",
+          "description": "Phần trăm inode đã dùng. Hết inode thì không tạo được file mới dù ổ đĩa còn trống (hay gặp khi có quá nhiều file nhỏ: cache, session, log). Nguồn: Node Exporter.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -5640,7 +5368,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(100 - node_filesystem_files_free{job=~'.*node.*', instance=~\"${server_ip}.*\", fstype!~'tmpfs|overlay|squashfs|devtmpfs|ramfs|nsfs|fuse.*'} / node_filesystem_files{job=~'.*node.*', instance=~\"${server_ip}.*\", fstype!~'tmpfs|overlay|squashfs|devtmpfs|ramfs|nsfs|fuse.*'} * 100) or (label_replace(disk_inodes_used_percent{instance=~\"${server_ip}.*\", fstype!~\"tmpfs|overlay|squashfs|devtmpfs|ramfs|nsfs|fuse.*\"}, \"mountpoint\", \"$1\", \"path\", \"(.*)\"))",
+                        "expr": "100 - node_filesystem_files_free{job=~'.*node.*', instance=~\"${server_ip}.*\", fstype!~'tmpfs|overlay|squashfs|devtmpfs|ramfs|nsfs|fuse.*'} / node_filesystem_files{job=~'.*node.*', instance=~\"${server_ip}.*\", fstype!~'tmpfs|overlay|squashfs|devtmpfs|ramfs|nsfs|fuse.*'} * 100",
                         "legendFormat": "{{mountpoint}}",
                         "range": true
                       }
@@ -5747,7 +5475,7 @@
         "spec": {
           "id": 46,
           "title": "Disk Latency — ${server_ip}",
-          "description": "Thời gian trung bình cho mỗi lần đọc/ghi đĩa (ms): đọc phía trên, ghi phía dưới trục 0. SSD thường < 5 ms; HDD/ổ mạng vài chục ms là đang chậm. Nguồn: Node Exporter hoặc Telegraf (máy chủ có nguồn nào thì hiện nguồn đó).",
+          "description": "Thời gian trung bình cho mỗi lần đọc/ghi đĩa (ms): đọc phía trên, ghi phía dưới trục 0. SSD thường < 5 ms; HDD/ổ mạng vài chục ms là đang chậm. Nguồn: Node Exporter.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -5765,7 +5493,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(rate(node_disk_read_time_seconds_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'loop.*|ram.*|sr.*|dm-.*'}[$__rate_interval]) / rate(node_disk_reads_completed_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'loop.*|ram.*|sr.*|dm-.*'}[$__rate_interval]) * 1000) or (label_replace(rate(diskio_read_time{instance=~\"${server_ip}.*\", name!~\"loop.*|ram.*|sr.*|dm-.*|(sd|vd|xvd)[a-z]+[0-9]+|nvme.*p[0-9]+\"}[$__rate_interval]) / rate(diskio_reads{instance=~\"${server_ip}.*\", name!~\"loop.*|ram.*|sr.*|dm-.*|(sd|vd|xvd)[a-z]+[0-9]+|nvme.*p[0-9]+\"}[$__rate_interval]), \"device\", \"$1\", \"name\", \"(.*)\"))",
+                        "expr": "rate(node_disk_read_time_seconds_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'loop.*|ram.*|sr.*|dm-.*'}[$__rate_interval]) / rate(node_disk_reads_completed_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'loop.*|ram.*|sr.*|dm-.*'}[$__rate_interval]) * 1000",
                         "legendFormat": "{{device}} read",
                         "range": true
                       }
@@ -5786,7 +5514,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(rate(node_disk_write_time_seconds_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'loop.*|ram.*|sr.*|dm-.*'}[$__rate_interval]) / rate(node_disk_writes_completed_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'loop.*|ram.*|sr.*|dm-.*'}[$__rate_interval]) * 1000) or (label_replace(rate(diskio_write_time{instance=~\"${server_ip}.*\", name!~\"loop.*|ram.*|sr.*|dm-.*|(sd|vd|xvd)[a-z]+[0-9]+|nvme.*p[0-9]+\"}[$__rate_interval]) / rate(diskio_writes{instance=~\"${server_ip}.*\", name!~\"loop.*|ram.*|sr.*|dm-.*|(sd|vd|xvd)[a-z]+[0-9]+|nvme.*p[0-9]+\"}[$__rate_interval]), \"device\", \"$1\", \"name\", \"(.*)\"))",
+                        "expr": "rate(node_disk_write_time_seconds_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'loop.*|ram.*|sr.*|dm-.*'}[$__rate_interval]) / rate(node_disk_writes_completed_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'loop.*|ram.*|sr.*|dm-.*'}[$__rate_interval]) * 1000",
                         "legendFormat": "{{device}} write",
                         "range": true
                       }
@@ -5907,7 +5635,7 @@
         "spec": {
           "id": 47,
           "title": "Network Packets — ${server_ip}",
-          "description": "Số gói tin mỗi giây theo card mạng: nhận phía trên, gửi phía dưới trục 0. Nguồn: Node Exporter hoặc Telegraf (máy chủ có nguồn nào thì hiện nguồn đó).",
+          "description": "Số gói tin mỗi giây theo card mạng: nhận phía trên, gửi phía dưới trục 0. Nguồn: Node Exporter.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -5925,7 +5653,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(sum by (instance, device) (rate(node_network_receive_packets_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'lo|veth.*|docker.*|br.*'}[$__rate_interval]))) or (sum by (instance, device) (label_replace(rate(net_packets_recv{instance=~\"${server_ip}.*\", interface!~\"lo|veth.*|docker.*|br.*|all\"}[$__rate_interval]), \"device\", \"$1\", \"interface\", \"(.*)\")))",
+                        "expr": "sum by (instance, device) (rate(node_network_receive_packets_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'lo|veth.*|docker.*|br.*'}[$__rate_interval]))",
                         "legendFormat": "{{device}} receive",
                         "range": true
                       }
@@ -5946,7 +5674,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(sum by (instance, device) (rate(node_network_transmit_packets_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'lo|veth.*|docker.*|br.*'}[$__rate_interval]))) or (sum by (instance, device) (label_replace(rate(net_packets_sent{instance=~\"${server_ip}.*\", interface!~\"lo|veth.*|docker.*|br.*|all\"}[$__rate_interval]), \"device\", \"$1\", \"interface\", \"(.*)\")))",
+                        "expr": "sum by (instance, device) (rate(node_network_transmit_packets_total{job=~'.*node.*', instance=~\"${server_ip}.*\", device!~'lo|veth.*|docker.*|br.*'}[$__rate_interval]))",
                         "legendFormat": "{{device}} transmit",
                         "range": true
                       }
@@ -6066,7 +5794,7 @@
         "spec": {
           "id": 48,
           "title": "TCP Activity — ${server_ip}",
-          "description": "Hoạt động TCP mỗi giây: kết nối mới vào (Passive opens) / ra (Active opens), gói gửi lại (Retransmits), kết nối bị reset (Resets) và kết nối ra thất bại (Failed attempts). Retransmits hoặc Resets tăng = mạng chập chờn hoặc backend từ chối kết nối. Nguồn: Node Exporter hoặc Telegraf (máy chủ có nguồn nào thì hiện nguồn đó).",
+          "description": "Hoạt động TCP mỗi giây: kết nối mới vào (Passive opens) / ra (Active opens), gói gửi lại (Retransmits), kết nối bị reset (Resets). Retransmits hoặc Resets tăng = mạng chập chờn hoặc backend từ chối kết nối. Nguồn: Node Exporter.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -6084,7 +5812,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(rate(node_netstat_Tcp_PassiveOpens{job=~'.*node.*', instance=~\"${server_ip}.*\"}[$__rate_interval])) or (rate(net_tcp_passiveopens{instance=~\"${server_ip}.*\"}[$__rate_interval]))",
+                        "expr": "rate(node_netstat_Tcp_PassiveOpens{job=~'.*node.*', instance=~\"${server_ip}.*\"}[$__rate_interval])",
                         "legendFormat": "Passive opens",
                         "range": true
                       }
@@ -6105,7 +5833,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(rate(node_netstat_Tcp_ActiveOpens{job=~'.*node.*', instance=~\"${server_ip}.*\"}[$__rate_interval])) or (rate(net_tcp_activeopens{instance=~\"${server_ip}.*\"}[$__rate_interval]))",
+                        "expr": "rate(node_netstat_Tcp_ActiveOpens{job=~'.*node.*', instance=~\"${server_ip}.*\"}[$__rate_interval])",
                         "legendFormat": "Active opens",
                         "range": true
                       }
@@ -6126,7 +5854,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(rate(node_netstat_Tcp_RetransSegs{job=~'.*node.*', instance=~\"${server_ip}.*\"}[$__rate_interval])) or (rate(net_tcp_retranssegs{instance=~\"${server_ip}.*\"}[$__rate_interval]))",
+                        "expr": "rate(node_netstat_Tcp_RetransSegs{job=~'.*node.*', instance=~\"${server_ip}.*\"}[$__rate_interval])",
                         "legendFormat": "Retransmits",
                         "range": true
                       }
@@ -6147,7 +5875,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(rate(node_netstat_Tcp_OutRsts{job=~'.*node.*', instance=~\"${server_ip}.*\"}[$__rate_interval])) or (rate(net_tcp_outrsts{instance=~\"${server_ip}.*\"}[$__rate_interval]))",
+                        "expr": "rate(node_netstat_Tcp_OutRsts{job=~'.*node.*', instance=~\"${server_ip}.*\"}[$__rate_interval])",
                         "legendFormat": "Resets",
                         "range": true
                       }
@@ -6155,27 +5883,6 @@
                     "refId": "D",
                     "hidden": false
                   }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "${DS_PROMETHEUS}"
-                      },
-                      "spec": {
-                        "editorMode": "code",
-                        "expr": "rate(net_tcp_attemptfails{instance=~\"${server_ip}.*\"}[$__rate_interval])",
-                        "legendFormat": "Failed attempts",
-                        "range": true
-                      }
-                    },
-                    "refId": "E",
-                    "hidden": false
-                  }
                 }
               ],
               "transformations": [],
@@ -6265,1054 +5972,6 @@
                   "min": 0
                 },
                 "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "panel-49": {
-        "kind": "Panel",
-        "spec": {
-          "id": 49,
-          "title": "Nginx Connection Rate (stub_status) — ${server_ip}",
-          "description": "Kết nối mới mỗi giây: Accepted = nginx nhận, Handled = nginx xử lý, Dropped = Accepted - Handled (> 0 là nginx đang bỏ kết nối vì hết worker_connections hoặc giới hạn tài nguyên). Nguồn: Telegraf.",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "${DS_PROMETHEUS}"
-                      },
-                      "spec": {
-                        "editorMode": "code",
-                        "expr": "sum by (instance) (rate(nginx_accepts{instance=~\"${server_ip}.*\"}[$__rate_interval]))",
-                        "legendFormat": "Accepted",
-                        "range": true
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "${DS_PROMETHEUS}"
-                      },
-                      "spec": {
-                        "editorMode": "code",
-                        "expr": "sum by (instance) (rate(nginx_handled{instance=~\"${server_ip}.*\"}[$__rate_interval]))",
-                        "legendFormat": "Handled",
-                        "range": true
-                      }
-                    },
-                    "refId": "B",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "${DS_PROMETHEUS}"
-                      },
-                      "spec": {
-                        "editorMode": "code",
-                        "expr": "sum by (instance) (rate(nginx_accepts{instance=~\"${server_ip}.*\"}[$__rate_interval])) - sum by (instance) (rate(nginx_handled{instance=~\"${server_ip}.*\"}[$__rate_interval]))",
-                        "legendFormat": "Dropped",
-                        "range": true
-                      }
-                    },
-                    "refId": "C",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "13.1.0",
-            "spec": {
-              "options": {
-                "annotations": {
-                  "clustering": -1,
-                  "multiLane": false
-                },
-                "legend": {
-                  "calcs": [
-                    "mean",
-                    "max"
-                  ],
-                  "displayMode": "table",
-                  "enableFacetedFilter": false,
-                  "overflow": "ellipsis",
-                  "placement": "bottom",
-                  "showLegend": true
-                },
-                "tooltip": {
-                  "hideZeros": false,
-                  "mode": "multi",
-                  "sort": "desc"
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "ops",
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "green"
-                      },
-                      {
-                        "value": 80,
-                        "color": "red"
-                      }
-                    ]
-                  },
-                  "color": {
-                    "mode": "palette-classic"
-                  },
-                  "custom": {
-                    "axisBorderShow": false,
-                    "axisCenteredZero": false,
-                    "axisColorMode": "text",
-                    "axisLabel": "",
-                    "axisPlacement": "auto",
-                    "barAlignment": 0,
-                    "barWidthFactor": 0.6,
-                    "drawStyle": "line",
-                    "fillOpacity": 10,
-                    "gradientMode": "none",
-                    "hideFrom": {
-                      "legend": false,
-                      "tooltip": false,
-                      "viz": false
-                    },
-                    "insertNulls": false,
-                    "lineInterpolation": "linear",
-                    "lineWidth": 2,
-                    "pointSize": 5,
-                    "scaleDistribution": {
-                      "type": "linear"
-                    },
-                    "showPoints": "never",
-                    "showValues": false,
-                    "spanNulls": false,
-                    "stacking": {
-                      "group": "A",
-                      "mode": "none"
-                    },
-                    "thresholdsStyle": {
-                      "mode": "off"
-                    }
-                  },
-                  "min": 0
-                },
-                "overrides": [
-                  {
-                    "matcher": {
-                      "id": "byName",
-                      "options": "Dropped"
-                    },
-                    "properties": [
-                      {
-                        "id": "color",
-                        "value": {
-                          "mode": "fixed",
-                          "fixedColor": "red"
-                        }
-                      }
-                    ]
-                  }
-                ]
-              }
-            }
-          }
-        }
-      },
-      "panel-60": {
-        "kind": "Panel",
-        "spec": {
-          "id": 60,
-          "title": "Requests by Domain",
-          "description": "Số request mỗi giây của từng domain, đếm từ access log nginx. Nguồn: Telegraf đọc access log nginx (telegraf/nginx-access-domain.conf).",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "${DS_PROMETHEUS}"
-                      },
-                      "spec": {
-                        "expr": "sum by (domain) (rate(nginx_domain_requests_total{instance=~\"${server_ip}.*\", domain=~\"$domain\"}[$__rate_interval]))",
-                        "legendFormat": "{{domain}}",
-                        "range": true
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "13.1.0",
-            "spec": {
-              "options": {
-                "annotations": {
-                  "clustering": -1,
-                  "multiLane": false
-                },
-                "legend": {
-                  "calcs": [
-                    "mean",
-                    "max"
-                  ],
-                  "displayMode": "list",
-                  "enableFacetedFilter": false,
-                  "overflow": "ellipsis",
-                  "placement": "bottom",
-                  "showLegend": true
-                },
-                "tooltip": {
-                  "hideZeros": false,
-                  "mode": "multi",
-                  "sort": "desc"
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "reqps",
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "green"
-                      },
-                      {
-                        "value": 80,
-                        "color": "red"
-                      }
-                    ]
-                  },
-                  "color": {
-                    "mode": "palette-classic"
-                  },
-                  "custom": {
-                    "axisBorderShow": false,
-                    "axisCenteredZero": false,
-                    "axisColorMode": "text",
-                    "axisLabel": "",
-                    "axisPlacement": "auto",
-                    "barAlignment": 0,
-                    "barWidthFactor": 0.6,
-                    "drawStyle": "line",
-                    "fillOpacity": 10,
-                    "gradientMode": "none",
-                    "hideFrom": {
-                      "legend": false,
-                      "tooltip": false,
-                      "viz": false
-                    },
-                    "insertNulls": false,
-                    "lineInterpolation": "linear",
-                    "lineWidth": 2,
-                    "pointSize": 5,
-                    "scaleDistribution": {
-                      "type": "linear"
-                    },
-                    "showPoints": "never",
-                    "showValues": false,
-                    "spanNulls": false,
-                    "stacking": {
-                      "group": "A",
-                      "mode": "none"
-                    },
-                    "thresholdsStyle": {
-                      "mode": "off"
-                    }
-                  },
-                  "min": 0
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "panel-61": {
-        "kind": "Panel",
-        "spec": {
-          "id": 61,
-          "title": "Bandwidth by Domain",
-          "description": "Dung lượng nginx trả về cho client mỗi giây theo từng domain (cột body_bytes_sent trong log). Nguồn: Telegraf đọc access log nginx (telegraf/nginx-access-domain.conf).",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "${DS_PROMETHEUS}"
-                      },
-                      "spec": {
-                        "expr": "sum by (domain) (rate(nginx_domain_bytes_total{instance=~\"${server_ip}.*\", domain=~\"$domain\"}[$__rate_interval]))",
-                        "legendFormat": "{{domain}}",
-                        "range": true
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "13.1.0",
-            "spec": {
-              "options": {
-                "annotations": {
-                  "clustering": -1,
-                  "multiLane": false
-                },
-                "legend": {
-                  "calcs": [
-                    "mean",
-                    "max"
-                  ],
-                  "displayMode": "list",
-                  "enableFacetedFilter": false,
-                  "overflow": "ellipsis",
-                  "placement": "bottom",
-                  "showLegend": true
-                },
-                "tooltip": {
-                  "hideZeros": false,
-                  "mode": "multi",
-                  "sort": "desc"
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "Bps",
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "green"
-                      },
-                      {
-                        "value": 80,
-                        "color": "red"
-                      }
-                    ]
-                  },
-                  "color": {
-                    "mode": "palette-classic"
-                  },
-                  "custom": {
-                    "axisBorderShow": false,
-                    "axisCenteredZero": false,
-                    "axisColorMode": "text",
-                    "axisLabel": "",
-                    "axisPlacement": "auto",
-                    "barAlignment": 0,
-                    "barWidthFactor": 0.6,
-                    "drawStyle": "line",
-                    "fillOpacity": 10,
-                    "gradientMode": "none",
-                    "hideFrom": {
-                      "legend": false,
-                      "tooltip": false,
-                      "viz": false
-                    },
-                    "insertNulls": false,
-                    "lineInterpolation": "linear",
-                    "lineWidth": 2,
-                    "pointSize": 5,
-                    "scaleDistribution": {
-                      "type": "linear"
-                    },
-                    "showPoints": "never",
-                    "showValues": false,
-                    "spanNulls": false,
-                    "stacking": {
-                      "group": "A",
-                      "mode": "none"
-                    },
-                    "thresholdsStyle": {
-                      "mode": "off"
-                    }
-                  },
-                  "min": 0
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "panel-62": {
-        "kind": "Panel",
-        "spec": {
-          "id": 62,
-          "title": "Error Rate by Domain (5xx)",
-          "description": "Phần trăm request trả lỗi 5xx (lỗi phía server / upstream) của từng domain. Vàng ≥ 1%, đỏ ≥ 5%. Nguồn: Telegraf đọc access log nginx (telegraf/nginx-access-domain.conf).",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "${DS_PROMETHEUS}"
-                      },
-                      "spec": {
-                        "expr": "100 * (sum by (domain) (rate(nginx_domain_requests_total{instance=~\"${server_ip}.*\", domain=~\"$domain\", resp_code=~\"5..\"}[$__rate_interval])) or 0 * sum by (domain) (rate(nginx_domain_requests_total{instance=~\"${server_ip}.*\", domain=~\"$domain\"}[$__rate_interval]))) / sum by (domain) (rate(nginx_domain_requests_total{instance=~\"${server_ip}.*\", domain=~\"$domain\"}[$__rate_interval]))",
-                        "legendFormat": "{{domain}}",
-                        "range": true
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "13.1.0",
-            "spec": {
-              "options": {
-                "annotations": {
-                  "clustering": -1,
-                  "multiLane": false
-                },
-                "legend": {
-                  "calcs": [
-                    "mean",
-                    "max"
-                  ],
-                  "displayMode": "list",
-                  "enableFacetedFilter": false,
-                  "overflow": "ellipsis",
-                  "placement": "bottom",
-                  "showLegend": true
-                },
-                "tooltip": {
-                  "hideZeros": false,
-                  "mode": "multi",
-                  "sort": "desc"
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "percent",
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "green"
-                      },
-                      {
-                        "value": 1,
-                        "color": "yellow"
-                      },
-                      {
-                        "value": 5,
-                        "color": "red"
-                      }
-                    ]
-                  },
-                  "color": {
-                    "mode": "palette-classic"
-                  },
-                  "custom": {
-                    "axisBorderShow": false,
-                    "axisCenteredZero": false,
-                    "axisColorMode": "text",
-                    "axisLabel": "",
-                    "axisPlacement": "auto",
-                    "barAlignment": 0,
-                    "barWidthFactor": 0.6,
-                    "drawStyle": "line",
-                    "fillOpacity": 10,
-                    "gradientMode": "none",
-                    "hideFrom": {
-                      "legend": false,
-                      "tooltip": false,
-                      "viz": false
-                    },
-                    "insertNulls": false,
-                    "lineInterpolation": "linear",
-                    "lineWidth": 2,
-                    "pointSize": 5,
-                    "scaleDistribution": {
-                      "type": "linear"
-                    },
-                    "showPoints": "never",
-                    "showValues": false,
-                    "spanNulls": false,
-                    "stacking": {
-                      "group": "A",
-                      "mode": "none"
-                    },
-                    "thresholdsStyle": {
-                      "mode": "dashed"
-                    }
-                  },
-                  "min": 0
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "panel-63": {
-        "kind": "Panel",
-        "spec": {
-          "id": 63,
-          "title": "Status Codes",
-          "description": "Request mỗi giây theo mã trả về (200, 301, 404, 502...) của các domain đang chọn. Nguồn: Telegraf đọc access log nginx (telegraf/nginx-access-domain.conf).",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "${DS_PROMETHEUS}"
-                      },
-                      "spec": {
-                        "expr": "sum by (resp_code) (rate(nginx_domain_requests_total{instance=~\"${server_ip}.*\", domain=~\"$domain\"}[$__rate_interval]))",
-                        "legendFormat": "{{resp_code}}",
-                        "range": true
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "13.1.0",
-            "spec": {
-              "options": {
-                "annotations": {
-                  "clustering": -1,
-                  "multiLane": false
-                },
-                "legend": {
-                  "calcs": [
-                    "mean",
-                    "max"
-                  ],
-                  "displayMode": "list",
-                  "enableFacetedFilter": false,
-                  "overflow": "ellipsis",
-                  "placement": "bottom",
-                  "showLegend": true
-                },
-                "tooltip": {
-                  "hideZeros": false,
-                  "mode": "multi",
-                  "sort": "desc"
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "reqps",
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "green"
-                      },
-                      {
-                        "value": 80,
-                        "color": "red"
-                      }
-                    ]
-                  },
-                  "color": {
-                    "mode": "palette-classic"
-                  },
-                  "custom": {
-                    "axisBorderShow": false,
-                    "axisCenteredZero": false,
-                    "axisColorMode": "text",
-                    "axisLabel": "",
-                    "axisPlacement": "auto",
-                    "barAlignment": 0,
-                    "barWidthFactor": 0.6,
-                    "drawStyle": "line",
-                    "fillOpacity": 30,
-                    "gradientMode": "none",
-                    "hideFrom": {
-                      "legend": false,
-                      "tooltip": false,
-                      "viz": false
-                    },
-                    "insertNulls": false,
-                    "lineInterpolation": "linear",
-                    "lineWidth": 2,
-                    "pointSize": 5,
-                    "scaleDistribution": {
-                      "type": "linear"
-                    },
-                    "showPoints": "never",
-                    "showValues": false,
-                    "spanNulls": false,
-                    "stacking": {
-                      "group": "A",
-                      "mode": "normal"
-                    },
-                    "thresholdsStyle": {
-                      "mode": "off"
-                    }
-                  },
-                  "min": 0
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "panel-64": {
-        "kind": "Panel",
-        "spec": {
-          "id": 64,
-          "title": "Domains Summary",
-          "description": "Tổng hợp từng domain trong khoảng thời gian đang xem: tổng request, request/giây, dung lượng trả về, tỉ lệ 4xx và 5xx. Nguồn: Telegraf đọc access log nginx (telegraf/nginx-access-domain.conf).",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "${DS_PROMETHEUS}"
-                      },
-                      "spec": {
-                        "expr": "round(sum by (domain) (increase(nginx_domain_requests_total{instance=~\"${server_ip}.*\", domain=~\"$domain\"}[$__range]))) > 0",
-                        "legendFormat": "__auto",
-                        "range": false,
-                        "instant": true,
-                        "format": "table"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "${DS_PROMETHEUS}"
-                      },
-                      "spec": {
-                        "expr": "sum by (domain) (rate(nginx_domain_requests_total{instance=~\"${server_ip}.*\", domain=~\"$domain\"}[$__range]))",
-                        "legendFormat": "__auto",
-                        "range": false,
-                        "instant": true,
-                        "format": "table"
-                      }
-                    },
-                    "refId": "B",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "${DS_PROMETHEUS}"
-                      },
-                      "spec": {
-                        "expr": "sum by (domain) (increase(nginx_domain_bytes_total{instance=~\"${server_ip}.*\", domain=~\"$domain\"}[$__range]))",
-                        "legendFormat": "__auto",
-                        "range": false,
-                        "instant": true,
-                        "format": "table"
-                      }
-                    },
-                    "refId": "C",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "${DS_PROMETHEUS}"
-                      },
-                      "spec": {
-                        "expr": "100 * (sum by (domain) (increase(nginx_domain_requests_total{instance=~\"${server_ip}.*\", domain=~\"$domain\", resp_code=~\"4..\"}[$__range])) or 0 * sum by (domain) (increase(nginx_domain_requests_total{instance=~\"${server_ip}.*\", domain=~\"$domain\"}[$__range]))) / sum by (domain) (increase(nginx_domain_requests_total{instance=~\"${server_ip}.*\", domain=~\"$domain\"}[$__range]))",
-                        "legendFormat": "__auto",
-                        "range": false,
-                        "instant": true,
-                        "format": "table"
-                      }
-                    },
-                    "refId": "D",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "${DS_PROMETHEUS}"
-                      },
-                      "spec": {
-                        "expr": "100 * (sum by (domain) (increase(nginx_domain_requests_total{instance=~\"${server_ip}.*\", domain=~\"$domain\", resp_code=~\"5..\"}[$__range])) or 0 * sum by (domain) (increase(nginx_domain_requests_total{instance=~\"${server_ip}.*\", domain=~\"$domain\"}[$__range]))) / sum by (domain) (increase(nginx_domain_requests_total{instance=~\"${server_ip}.*\", domain=~\"$domain\"}[$__range]))",
-                        "legendFormat": "__auto",
-                        "range": false,
-                        "instant": true,
-                        "format": "table"
-                      }
-                    },
-                    "refId": "E",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [
-                {
-                  "kind": "Transformation",
-                  "group": "merge",
-                  "spec": {
-                    "options": {}
-                  }
-                },
-                {
-                  "kind": "Transformation",
-                  "group": "filterByValue",
-                  "spec": {
-                    "options": {
-                      "type": "exclude",
-                      "match": "any",
-                      "filters": [
-                        {
-                          "fieldName": "Value #A",
-                          "config": {
-                            "id": "isNull",
-                            "options": {}
-                          }
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "kind": "Transformation",
-                  "group": "organize",
-                  "spec": {
-                    "options": {
-                      "excludeByName": {
-                        "Time": true
-                      },
-                      "indexByName": {
-                        "domain": 0,
-                        "Value #A": 1,
-                        "Value #B": 2,
-                        "Value #C": 3,
-                        "Value #D": 4,
-                        "Value #E": 5
-                      },
-                      "renameByName": {
-                        "domain": "Domain",
-                        "Value #A": "Requests",
-                        "Value #B": "RPS",
-                        "Value #C": "Bytes",
-                        "Value #D": "4xx %",
-                        "Value #E": "5xx %"
-                      }
-                    }
-                  }
-                }
-              ],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "table",
-            "version": "13.1.0",
-            "spec": {
-              "options": {
-                "cellHeight": "sm",
-                "enablePagination": false,
-                "showHeader": true,
-                "sortBy": [
-                  {
-                    "desc": true,
-                    "displayName": "Requests"
-                  }
-                ]
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "short",
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "text"
-                      }
-                    ]
-                  },
-                  "color": {
-                    "mode": "thresholds"
-                  },
-                  "custom": {
-                    "align": "auto",
-                    "cellOptions": {
-                      "type": "auto"
-                    },
-                    "footer": {
-                      "reducers": []
-                    },
-                    "inspect": false
-                  }
-                },
-                "overrides": [
-                  {
-                    "matcher": {
-                      "id": "byName",
-                      "options": "Domain"
-                    },
-                    "properties": [
-                      {
-                        "id": "custom.width",
-                        "value": 280
-                      }
-                    ]
-                  },
-                  {
-                    "matcher": {
-                      "id": "byName",
-                      "options": "Requests"
-                    },
-                    "properties": [
-                      {
-                        "id": "decimals",
-                        "value": 0
-                      }
-                    ]
-                  },
-                  {
-                    "matcher": {
-                      "id": "byName",
-                      "options": "RPS"
-                    },
-                    "properties": [
-                      {
-                        "id": "unit",
-                        "value": "reqps"
-                      },
-                      {
-                        "id": "decimals",
-                        "value": 3
-                      }
-                    ]
-                  },
-                  {
-                    "matcher": {
-                      "id": "byName",
-                      "options": "Bytes"
-                    },
-                    "properties": [
-                      {
-                        "id": "unit",
-                        "value": "bytes"
-                      }
-                    ]
-                  },
-                  {
-                    "matcher": {
-                      "id": "byName",
-                      "options": "4xx %"
-                    },
-                    "properties": [
-                      {
-                        "id": "unit",
-                        "value": "percent"
-                      },
-                      {
-                        "id": "decimals",
-                        "value": 2
-                      },
-                      {
-                        "id": "thresholds",
-                        "value": {
-                          "mode": "absolute",
-                          "steps": [
-                            {
-                              "value": 0,
-                              "color": "green"
-                            },
-                            {
-                              "value": 1,
-                              "color": "yellow"
-                            },
-                            {
-                              "value": 5,
-                              "color": "red"
-                            }
-                          ]
-                        }
-                      },
-                      {
-                        "id": "custom.cellOptions",
-                        "value": {
-                          "type": "color-text"
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "matcher": {
-                      "id": "byName",
-                      "options": "5xx %"
-                    },
-                    "properties": [
-                      {
-                        "id": "unit",
-                        "value": "percent"
-                      },
-                      {
-                        "id": "decimals",
-                        "value": 2
-                      },
-                      {
-                        "id": "thresholds",
-                        "value": {
-                          "mode": "absolute",
-                          "steps": [
-                            {
-                              "value": 0,
-                              "color": "green"
-                            },
-                            {
-                              "value": 1,
-                              "color": "yellow"
-                            },
-                            {
-                              "value": 5,
-                              "color": "red"
-                            }
-                          ]
-                        }
-                      },
-                      {
-                        "id": "custom.cellOptions",
-                        "value": {
-                          "type": "color-text"
-                        }
-                      }
-                    ]
-                  }
-                ]
               }
             }
           }
@@ -7401,85 +6060,6 @@
                           "mode": "variable",
                           "value": "job",
                           "direction": "h"
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          {
-            "kind": "RowsLayoutRow",
-            "spec": {
-              "title": "Domains — Access Log (Telegraf)",
-              "collapse": false,
-              "layout": {
-                "kind": "GridLayout",
-                "spec": {
-                  "items": [
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 0,
-                        "y": 0,
-                        "width": 24,
-                        "height": 9,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "panel-64"
-                        }
-                      }
-                    },
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 0,
-                        "y": 9,
-                        "width": 12,
-                        "height": 8,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "panel-60"
-                        }
-                      }
-                    },
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 12,
-                        "y": 9,
-                        "width": 12,
-                        "height": 8,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "panel-61"
-                        }
-                      }
-                    },
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 0,
-                        "y": 17,
-                        "width": 12,
-                        "height": 8,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "panel-62"
-                        }
-                      }
-                    },
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 12,
-                        "y": 17,
-                        "width": 12,
-                        "height": 8,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "panel-63"
                         }
                       }
                     }
@@ -8272,44 +6852,6 @@
                           "maxPerRow": 4
                         }
                       }
-                    },
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 0,
-                        "y": 16,
-                        "width": 24,
-                        "height": 8,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "panel-41"
-                        },
-                        "repeat": {
-                          "mode": "variable",
-                          "value": "server_ip",
-                          "direction": "h",
-                          "maxPerRow": 4
-                        }
-                      }
-                    },
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 0,
-                        "y": 24,
-                        "width": 24,
-                        "height": 8,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "panel-49"
-                        },
-                        "repeat": {
-                          "mode": "variable",
-                          "value": "server_ip",
-                          "direction": "h",
-                          "maxPerRow": 4
-                        }
-                      }
                     }
                   ]
                 }
@@ -8347,7 +6889,7 @@
       "hideTimepicker": false,
       "fiscalYearStartMonth": 0
     },
-    "title": "Nginx Beyla Full — HTTP & Resources",
+    "title": "Nginx Beyla + Node Exporter — HTTP & Resources",
     "variables": [
       {
         "kind": "DatasourceVariable",
@@ -8511,44 +7053,8 @@
           "includeAll": true,
           "allowCustomValue": true
         }
-      },
-      {
-        "kind": "QueryVariable",
-        "spec": {
-          "name": "domain",
-          "current": {
-            "text": "All",
-            "value": "$__all"
-          },
-          "label": "Domain",
-          "hide": "dontHide",
-          "refresh": "onTimeRangeChanged",
-          "skipUrlSync": false,
-          "query": {
-            "kind": "DataQuery",
-            "group": "prometheus",
-            "version": "v0",
-            "datasource": {
-              "name": "${DS_PROMETHEUS}"
-            },
-            "spec": {
-              "qryType": 1,
-              "query": "label_values(nginx_domain_requests_total{instance=~\"${server_ip}.*\"}, domain)",
-              "refId": "PrometheusVariableQueryEditor-Domain"
-            }
-          },
-          "regex": "",
-          "regexApplyTo": "value",
-          "sort": "alphabeticalAsc",
-          "definition": "label_values(nginx_domain_requests_total{instance=~\"${server_ip}.*\"}, domain)",
-          "options": [],
-          "multi": true,
-          "includeAll": true,
-          "allValue": ".*",
-          "allowCustomValue": true
-        }
       }
     ],
-    "description": "Giám sát Nginx bằng Grafana Beyla (eBPF) + Node Exporter: RED metrics, route, status code, Matrix API, CPU/RAM/Disk/Network của máy chủ và tiến trình nginx."
+    "description": "Giám sát Nginx bằng Grafana Beyla (eBPF) + Node Exporter 1.8.0: RED metrics, route, status code, CPU/RAM/Disk/Network/TCP của máy chủ và tiến trình nginx."
   }
 }
